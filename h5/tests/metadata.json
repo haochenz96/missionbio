@@ -1,0 +1,10 @@
+{
+  "genome": "hg19",
+  "panel": "AML",
+  "n_amplicons": 50,
+  "chemistry": "V1",
+  "pipeline_version": "test",
+  "n_cells": 122,
+  "n_reads": 1000000,
+  "n_reads_assigned_to_cells": 307280
+}
