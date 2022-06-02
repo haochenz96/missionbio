@@ -6,18 +6,18 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import requests
-from missionbio.h5.constants import CHROM
+from h5.constants import CHROM
 
-from missionbio.mosaic.assay import _Assay
-from missionbio.mosaic.constants import COLORS, GENE_NAME, NORMALIZED_READS, PLOIDY, READS
-from missionbio.mosaic.plotting import plt, require_seaborn, sns
+from mosaic.assay import _Assay
+from mosaic.constants import COLORS, GENE_NAME, NORMALIZED_READS, PLOIDY, READS
+from mosaic.plotting import plt, require_seaborn, sns
 
 
 class Cnv(_Assay):
     """
     Container for CNV data.
 
-    Inherits most methods from :class:`missionbio.mosaic.assay._Assay`.
+    Inherits most methods from :class:`mosaic.assay._Assay`.
     See that for the documentation on other methods and visualizations.
 
     .. rubric:: Algorithms
@@ -48,10 +48,10 @@ class Cnv(_Assay):
         Parameters
         ----------
         args: list
-            To be passed to missionbio.mosaic.assay object.
+            To be passed to mosaic.assay object.
 
         kwargs: dict
-            To be passed to missionbio.mosaic.assay object.
+            To be passed to mosaic.assay object.
         """
         super().__init__(*args, **kwargs)
 

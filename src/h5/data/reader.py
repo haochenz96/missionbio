@@ -8,7 +8,7 @@ from typing import List, Set, Union
 import h5py
 import numpy as np
 
-from missionbio.h5.constants import (
+from h5.constants import (
     ASSAYS,
     COL_ATTRS,
     DATE_CREATED,
@@ -21,9 +21,9 @@ from missionbio.h5.constants import (
     SAMPLE,
     SDK_VERSION,
 )
-from missionbio.h5.data import Assay
-from missionbio.h5.data.normalize import decode_value
-from missionbio.h5.data.validation import check_file
+from h5.data import Assay
+from h5.data.normalize import decode_value
+from h5.data.validation import check_file
 
 log = logging.getLogger(__name__)
 

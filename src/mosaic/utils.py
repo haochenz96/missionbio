@@ -7,7 +7,7 @@ import io
 import numpy as np
 import pandas as pd
 
-from missionbio.mosaic.plotting import mpimg, plt, require_seaborn, sns
+from mosaic.plotting import mpimg, plt, require_seaborn, sns
 
 
 @require_seaborn

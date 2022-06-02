@@ -6,8 +6,8 @@ from typing import Any, Dict, Set
 
 import numpy as np
 
-from missionbio.h5.constants import BARCODE, SAMPLE
-from missionbio.h5.exceptions import UserError
+from h5.constants import BARCODE, SAMPLE
+from h5.exceptions import UserError
 
 __all__ = ["Assay"]
 

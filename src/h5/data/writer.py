@@ -8,8 +8,8 @@ from typing import Any, Union
 import h5py
 import numpy as np
 
-from missionbio.h5 import __version__
-from missionbio.h5.constants import (
+from h5 import __version__
+from h5.constants import (
     ASSAYS,
     COL_ATTRS,
     DATE_CREATED,
@@ -19,9 +19,9 @@ from missionbio.h5.constants import (
     ROW_ATTRS,
     SDK_VERSION,
 )
-from missionbio.h5.data import Assay
-from missionbio.h5.data.normalize import normalize_attr_values
-from missionbio.h5.data.validation import check_assay
+from h5.data import Assay
+from h5.data.normalize import normalize_attr_values
+from h5.data.validation import check_assay
 
 log = logging.getLogger(__name__)
 

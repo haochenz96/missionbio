@@ -9,21 +9,21 @@ import plotly.express as px
 import plotly.graph_objects as go
 import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
-from missionbio.h5.constants import AF, BARCODE, DNA_READ_COUNTS_ASSAY, PROTEIN_ASSAY, SAMPLE
+from h5.constants import AF, BARCODE, DNA_READ_COUNTS_ASSAY, PROTEIN_ASSAY, SAMPLE
 from plotly.subplots import make_subplots
 from scipy.cluster import hierarchy  # For hierarchical clustering
 from scipy.spatial.distance import pdist  # For hierarchical clustering
 
-from missionbio.mosaic.constants import COLORS, GENE_NAME, NORMALIZED_READS, PLOIDY, READS
-from missionbio.mosaic.dna import Dna
-from missionbio.mosaic.utils import clipped_values
+from mosaic.constants import COLORS, GENE_NAME, NORMALIZED_READS, PLOIDY, READS
+from mosaic.dna import Dna
+from mosaic.utils import clipped_values
 
 
 class Sample():
     """
     Container for multiple assays.
 
-    Just like the :class:`missionbio.mosaic.assay._Assay` object,
+    Just like the :class:`mosaic.assay._Assay` object,
     `Sample` can also be filtered using Python's slice notation.
 
     It accepts only one key - a list of barcodes, a
@@ -31,7 +31,7 @@ class Sample():
 
     Load the sample.
 
-        >>> import missionbio.mosaic.io as mio
+        >>> import mosaic.io as mio
         >>> sample = mio.load('/path/to/h5')
 
     Selecting the first 100 cells (these aren't necessarily cells
@@ -969,7 +969,7 @@ class Sample():
     @staticmethod
     def _heatmap_setup(data=None, clusterby=None, sortby=None):
         """
-        Setup for :meth:`missionbio.mosaic.sample.Sample.heatmap`.
+        Setup for :meth:`mosaic.sample.Sample.heatmap`.
 
         Takes a dictionary of assay objects, and prepares the parameters for
         plotting heatmaps, generate spacing, ticks, colorbar parameters, title, etc.

@@ -1,0 +1,2 @@
+[console_scripts]
+tapestri = cli.__main__:main

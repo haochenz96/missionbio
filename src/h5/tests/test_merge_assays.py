@@ -6,10 +6,10 @@ from unittest.mock import patch
 import h5py
 import numpy as np
 
-from missionbio.h5.constants import BARCODE, ID, SAMPLE
-from missionbio.h5.data import Assay, H5Reader, H5Writer
-from missionbio.h5.merge import merge_assay_files, merge_assays
-from missionbio.h5.tests.base import dummy_assay
+from h5.constants import BARCODE, ID, SAMPLE
+from h5.data import Assay, H5Reader, H5Writer
+from h5.merge import merge_assay_files, merge_assays
+from h5.tests.base import dummy_assay
 
 
 class MergeAssaysTests(TestCase):

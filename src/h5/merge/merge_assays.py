@@ -7,10 +7,10 @@ from typing import List, Tuple, Union
 import h5py
 import numpy as np
 
-from missionbio.h5.constants import BARCODE, SAMPLE
-from missionbio.h5.data import Assay, H5Reader, H5Writer
-from missionbio.h5.exceptions import UserError, ValidationError
-from missionbio.h5.utils import find_common_keys, is_sorted
+from h5.constants import BARCODE, SAMPLE
+from h5.data import Assay, H5Reader, H5Writer
+from h5.exceptions import UserError, ValidationError
+from h5.utils import find_common_keys, is_sorted
 
 log = logging.getLogger(__name__)
 

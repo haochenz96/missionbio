@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from pandas import Series
 
-from missionbio.h5.constants import (
+from h5.constants import (
     AF,
     ALT,
     CHROM,
@@ -22,7 +22,7 @@ from missionbio.h5.constants import (
     RGQ,
     SAMPLE,
 )
-from missionbio.h5.data import Assay
+from h5.data import Assay
 
 __all__ = ["create_dna_assay"]
 

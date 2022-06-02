@@ -2,10 +2,10 @@ from unittest import TestCase
 
 import numpy as np
 
-from missionbio.h5.constants import DNA_ASSAY
-from missionbio.h5.data import H5Reader
-from missionbio.h5.filter import DefaultFilter, filter_assay, filter_dna, mutated_in_x_cells
-from missionbio.h5.tests.base import TEST_FILTER_DNA
+from h5.constants import DNA_ASSAY
+from h5.data import H5Reader
+from h5.filter import DefaultFilter, filter_assay, filter_dna, mutated_in_x_cells
+from h5.tests.base import TEST_FILTER_DNA
 
 CONFIG = filter_assay.FilterConfig(0, 0, 0, 80, 90, 1)
 

@@ -3,7 +3,7 @@ from typing import Callable
 
 import click
 
-from missionbio.h5.filter import DefaultFilter
+from h5.filter import DefaultFilter
 
 
 def variant_filtering_options(function: Callable):

@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from missionbio.h5.data.normalize import normalize_attr_strings, normalize_attr_values
+from h5.data.normalize import normalize_attr_strings, normalize_attr_values
 
 
 class NormalizeAttrStringsTests(TestCase):

@@ -4,7 +4,7 @@ from typing import NamedTuple, Optional
 
 import numpy as np
 
-from missionbio.h5.constants import (
+from h5.constants import (
     COL_ATTRS,
     DNA_ASSAY,
     FILTER_MASK,
@@ -18,8 +18,8 @@ from missionbio.h5.constants import (
     NGT,
     ROW_ATTRS,
 )
-from missionbio.h5.data import Assay, H5Reader, H5Writer
-from missionbio.h5.filter import FilterConfig, filter_dna, mutated_in_x_cells
+from h5.data import Assay, H5Reader, H5Writer
+from h5.filter import FilterConfig, filter_dna, mutated_in_x_cells
 
 log = logging.getLogger(__name__)
 

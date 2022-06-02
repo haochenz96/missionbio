@@ -2,8 +2,8 @@ from unittest import TestCase
 
 import numpy as np
 
-from missionbio.h5.create import create_cnv_assay
-from missionbio.h5.tests.base import TEST_DNA_COUNTS
+from h5.create import create_cnv_assay
+from h5.tests.base import TEST_DNA_COUNTS
 
 
 class CreateCnvAssayTests(TestCase):

@@ -7,7 +7,7 @@ from typing import Optional
 
 import numpy as np
 
-from missionbio.h5.data import Assay
+from h5.data import Assay
 
 TEST_DIR = dirname(__file__)
 

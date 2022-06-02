@@ -2,10 +2,10 @@ from unittest.case import TestCase
 
 import numpy as np
 
-from missionbio.h5.constants import BARCODE, DNA_ASSAY, ID, NGT, SAMPLE
-from missionbio.h5.data import Assay, H5Reader
-from missionbio.h5.merge import merge_samples
-from missionbio.h5.tests.base import TEST_MERGE_A, TEST_MERGE_B, TEST_MERGE_C, dummy_assay
+from h5.constants import BARCODE, DNA_ASSAY, ID, NGT, SAMPLE
+from h5.data import Assay, H5Reader
+from h5.merge import merge_samples
+from h5.tests.base import TEST_MERGE_A, TEST_MERGE_B, TEST_MERGE_C, dummy_assay
 
 
 class MergeSamplesTests(TestCase):

@@ -11,15 +11,15 @@ from contextlib import ExitStack
 
 import click
 import numpy as np
-from missionbio.cli import tapestri_command
+from cli import tapestri_command
 
-from missionbio.h5.constants import BARCODE, ID
-from missionbio.h5.create import create_cnv_assay, create_dna_assay, create_protein_assay
-from missionbio.h5.data import H5Reader, H5Writer
-from missionbio.h5.exceptions import ValidationError
-from missionbio.h5.filter import FilterConfig, add_variant_stats, variant_filtering_options
-from missionbio.h5.merge import merge_assay_files, merge_samples
-from missionbio.h5.utils import find_common_keys, is_sorted
+from h5.constants import BARCODE, ID
+from h5.create import create_cnv_assay, create_dna_assay, create_protein_assay
+from h5.data import H5Reader, H5Writer
+from h5.exceptions import ValidationError
+from h5.filter import FilterConfig, add_variant_stats, variant_filtering_options
+from h5.merge import merge_assay_files, merge_samples
+from h5.utils import find_common_keys, is_sorted
 
 log = logging.getLogger(__name__)
 

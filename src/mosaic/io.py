@@ -11,7 +11,7 @@ from os import path
 import h5py
 import numpy as np
 import pandas as pd
-from missionbio.h5.constants import (
+from h5.constants import (
     BARCODE,
     DATE_CREATED,
     DNA_ASSAY,
@@ -22,30 +22,30 @@ from missionbio.h5.constants import (
     SAMPLE,
     SDK_VERSION,
 )
-from missionbio.h5.data import H5Reader, H5Writer
-from missionbio.h5.merge import merge_assays, merge_samples
+from h5.data import H5Reader, H5Writer
+from h5.merge import merge_assays, merge_samples
 
-from missionbio.mosaic.cnv import Cnv
-from missionbio.mosaic.constants import READS
-from missionbio.mosaic.dna import Dna
-from missionbio.mosaic.protein import Protein
-from missionbio.mosaic.sample import Sample
+from mosaic.cnv import Cnv
+from mosaic.constants import READS
+from mosaic.dna import Dna
+from mosaic.protein import Protein
+from mosaic.sample import Sample
 
 
 def _init_from_assay(assay, assay_type):
     """
-    Initialze using missionbio.h5.assay.Assay object.
+    Initialze using h5.assay.Assay object.
     Determines the shape if missing.
 
     Parameters
     ----------
-    assay : missionbio.h5.assay.Assay
+    assay : h5.assay.Assay
 
     assay_type : class
         One of the following:
-        - :class:`missionbio.mosaic.dna.Dna`
-        - :class:`missionbio.mosaic.cnv,Cnv`
-        - :class:`missionbio.mosaic.protein.Protein`
+        - :class:`mosaic.dna.Dna`
+        - :class:`mosaic.cnv,Cnv`
+        - :class:`mosaic.protein.Protein`
 
     Returns
     -------
@@ -182,7 +182,7 @@ def _is_supported(h5file):
     -------
     bool
         Whether the h5 files is supported
-        by missionbio.h5.data.H5Reader or not.
+        by h5.data.H5Reader or not.
     """
 
     with h5py.File(h5file, 'r+') as file:
@@ -392,7 +392,7 @@ def _cnv_raw_counts(file_path):
 
     Returns
     -------
-    missionbio.mosaic.cnv.Cnv
+    mosaic.cnv.Cnv
     """
 
     df = pd.read_csv(file_path, sep='\t')
@@ -422,7 +422,7 @@ def _protein_raw_counts(file_path):
 
     Returns
     -------
-    missionbio.mosaic.protein.Protein
+    mosaic.protein.Protein
     """
 
     df = pd.read_csv(file_path, index_col=[0, 1], sep='\t')
@@ -466,7 +466,7 @@ def load(filepath, name=None, raw=False, update=False, apply_filter=False, white
 
     Returns
     -------
-    missionbio.mosaic.sample.Sample
+    mosaic.sample.Sample
 
     Raises
     ------
@@ -521,7 +521,7 @@ def save(sample, path, raw=False):
 
     Parameters
     ----------
-    sample : :class:`missionbio.mosaic.sample.Sample`
+    sample : :class:`mosaic.sample.Sample`
         The sample to be saved.
     path : str
         The path to save it to.
@@ -558,7 +558,7 @@ def merge(samples):
 
     Returns
     -------
-    combo : :class:`missionbio.mosaic.sample.Sample`
+    combo : :class:`mosaic.sample.Sample`
         A new sample with 'sample_id' added to the
         row_attrs showing the sample that the barcode
         belongs to.

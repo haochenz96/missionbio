@@ -4,8 +4,8 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from missionbio.h5.constants import BARCODE, DEFAULT_SAMPLE, ID, PROTEIN_ASSAY, SAMPLE
-from missionbio.h5.data import Assay
+from h5.constants import BARCODE, DEFAULT_SAMPLE, ID, PROTEIN_ASSAY, SAMPLE
+from h5.data import Assay
 
 log = logging.getLogger(__name__)
 

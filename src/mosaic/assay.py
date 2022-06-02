@@ -7,8 +7,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import umap
 from hdbscan import HDBSCAN
-from missionbio.h5.constants import BARCODE, ID, SAMPLE
-from missionbio.h5.data.assay import Assay as H5_Assay
+from h5.constants import BARCODE, ID, SAMPLE
+from h5.data.assay import Assay as H5_Assay
 from plotly.subplots import make_subplots
 from scipy import stats
 from scipy.cluster import hierarchy
@@ -18,7 +18,7 @@ from sklearn.cluster import DBSCAN, KMeans
 from sklearn.decomposition import PCA
 from sklearn.neighbors import NearestNeighbors
 
-from missionbio.mosaic.constants import (
+from mosaic.constants import (
     COLORS,
     LABEL,
     ORG_BARCODE,
@@ -28,16 +28,16 @@ from missionbio.mosaic.constants import (
     SCALED_LABEL,
     UMAP_LABEL,
 )
-from missionbio.mosaic.plotting import plt, require_seaborn, sns
-from missionbio.mosaic.utils import clipped_values, get_indexes
+from mosaic.plotting import plt, require_seaborn, sns
+from mosaic.utils import clipped_values, get_indexes
 
 
 class _Assay(H5_Assay):
     """
     Abstract class for all assays
 
-    Each of :class:`missionbio.mosaic.dna.Dna`, :class:`missionbio.mosaic.cnv.Cnv`,
-    and :class:`missionbio.mosaic.protein.Protein` are inherited from this base class,
+    Each of :class:`mosaic.dna.Dna`, :class:`mosaic.cnv.Cnv`,
+    and :class:`mosaic.protein.Protein` are inherited from this base class,
     hence all of them have the following functionality:
 
     `_Assay` objects can be filtered using Python's slice notation. It requires two
@@ -46,7 +46,7 @@ class _Assay(H5_Assay):
 
     Load the sample.
 
-        >>> import missionbio.mosaic.io as mio
+        >>> import mosaic.io as mio
         >>> sample = mio.load('/path/to/h5')
 
     Select the first 250 cells (these aren't necessarily the cells
@@ -122,7 +122,7 @@ class _Assay(H5_Assay):
 
     def __init__(self, *args, **kwargs):
         """
-        Calls missionbio.h5.data.assay.__init__.
+        Calls h5.data.assay.__init__.
         """
         super().__init__(*args, **kwargs)
         self.selected_bars = {}
@@ -158,7 +158,7 @@ class _Assay(H5_Assay):
 
         Returns
         -------
-        :class:`missionbio.mosaic.assay._Assay`
+        :class:`mosaic.assay._Assay`
             A copy of itself with the relevant
             barcodes and ids selected.
 
@@ -236,7 +236,7 @@ class _Assay(H5_Assay):
 
         Returns
         -------
-        :class:`missionbio.mosaic.assay._Assay`
+        :class:`mosaic.assay._Assay`
             A copy of itself with the relevant
             ids removed.
 
@@ -2003,7 +2003,7 @@ class _Assay(H5_Assay):
         ids : 2-tuple
             The x and y coordinates.
         kwargs : dict
-            Passed to :meth:`missionbio.mosaic.assay._Assay.scatterplot`
+            Passed to :meth:`mosaic.assay._Assay.scatterplot`
 
         Returns
         -------

@@ -3,8 +3,8 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from missionbio.h5.constants import BARCODE, DEFAULT_SAMPLE, DNA_READ_COUNTS_ASSAY, ID, SAMPLE
-from missionbio.h5.data import Assay
+from h5.constants import BARCODE, DEFAULT_SAMPLE, DNA_READ_COUNTS_ASSAY, ID, SAMPLE
+from h5.data import Assay
 
 
 def create_cnv_assay(counts_tsv: str, metadata: Optional[dict] = None) -> Assay:

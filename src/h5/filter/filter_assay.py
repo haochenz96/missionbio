@@ -4,8 +4,8 @@ from typing import Iterable, NamedTuple, Tuple
 import numpy as np
 from h5py import Dataset
 
-from missionbio.h5.constants import AF, DP, GQ, NGT
-from missionbio.h5.data import Assay
+from h5.constants import AF, DP, GQ, NGT
+from h5.data import Assay
 
 log = logging.getLogger(__name__)
 

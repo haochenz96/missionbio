@@ -3,7 +3,7 @@ from typing import Any, Mapping, Union
 
 import h5py
 
-from missionbio.h5.constants import (
+from h5.constants import (
     ASSAYS,
     BARCODE,
     COL_ATTRS,
@@ -15,9 +15,9 @@ from missionbio.h5.constants import (
     SAMPLE,
     SDK_VERSION,
 )
-from missionbio.h5.data import Assay
-from missionbio.h5.data.normalize import decode_value
-from missionbio.h5.exceptions import ValidationError
+from h5.data import Assay
+from h5.data.normalize import decode_value
+from h5.exceptions import ValidationError
 
 log = logging.getLogger(__name__)
 

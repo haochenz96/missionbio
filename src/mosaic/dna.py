@@ -5,16 +5,16 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 import requests  # For pulling annotations from APIs
-from missionbio.h5.constants import AF, DP, GQ, ID, NGT
+from h5.constants import AF, DP, GQ, ID, NGT
 from plotly.subplots import make_subplots
 from scipy import stats  # For z-score function
 from scipy.cluster import hierarchy
 from scipy.spatial.distance import pdist, squareform  # For hierarchical clustering
 
-from missionbio.mosaic.assay import _Assay
-from missionbio.mosaic.constants import AF_MISSING, COLORS, NGT_FILTERED, UMAP_LABEL
-from missionbio.mosaic.plotting import plt, require_seaborn, sns, to_hex
-from missionbio.mosaic.utils import extend_docs
+from mosaic.assay import _Assay
+from mosaic.constants import AF_MISSING, COLORS, NGT_FILTERED, UMAP_LABEL
+from mosaic.plotting import plt, require_seaborn, sns, to_hex
+from mosaic.utils import extend_docs
 
 
 @extend_docs
@@ -22,7 +22,7 @@ class Dna(_Assay):
     """
     Container for DNA data.
 
-    Inherits most methods from :class:`missionbio.mosaic.assay._Assay`.
+    Inherits most methods from :class:`mosaic.assay._Assay`.
     See that for the documentation on other methods and visualizations.
 
     .. rubric:: Algorithms
@@ -58,10 +58,10 @@ class Dna(_Assay):
         Parameters
         ----------
         args: list
-            To be passed to missionbio.mosaic.assay object.
+            To be passed to mosaic.assay object.
 
         kwargs: dict
-            To be passed to missionbio.mosaic.assay object.
+            To be passed to mosaic.assay object.
         """
 
         super().__init__(*args, **kwargs)
@@ -170,7 +170,7 @@ class Dna(_Assay):
     def genotype_variants(self, het_vaf=20, hom_vaf=80, min_dp=None, min_alt_read = None, min_gq = 0):
 
         '''
-        @HZ: Mission Bio's method by default seems to already construct the NGT matrix based on their default filtering thresholds (for values see here: https://missionbio.github.io/mosaic/pages/methods/missionbio.mosaic.dna.Dna.filter_variants.html#missionbio.mosaic.dna.Dna.filter_variants)
+        @HZ: Mission Bio's method by default seems to already construct the NGT matrix based on their default filtering thresholds (for values see here: https://github.io/mosaic/pages/methods/mosaic.dna.Dna.filter_variants.html#mosaic.dna.Dna.filter_variants)
         
         This function aims to build the 'NGT' [genotype (0: WT; 1: HET; 2: HOM; 3: MISSING)] matrix based on custom thresholds:
 
@@ -532,7 +532,7 @@ class Dna(_Assay):
         variants = self.ids()
         variants = np.array([var.replace(':', '-').replace('/', '-') for var in variants], dtype='object')
 
-        url = 'https://api.missionbio.io/annotations/v1/variants?ids=' + ','.join(variants.astype(str))
+        url = 'https://api.io/annotations/v1/variants?ids=' + ','.join(variants.astype(str))
         r = requests.get(url=url)
         vars = r.text.split('chromosome')[1:]
         genes = deepcopy(variants)

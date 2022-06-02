@@ -2,10 +2,10 @@ from unittest import TestCase
 
 import numpy as np
 
-from missionbio.h5.constants import BARCODE, ID, SAMPLE
-from missionbio.h5.data import Assay
-from missionbio.h5.data.validation import check_assay
-from missionbio.h5.tests.base import dummy_assay
+from h5.constants import BARCODE, ID, SAMPLE
+from h5.data import Assay
+from h5.data.validation import check_assay
+from h5.tests.base import dummy_assay
 
 
 class AssayTests(TestCase):

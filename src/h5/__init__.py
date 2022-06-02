@@ -1,5 +1,5 @@
 """
-Python package `missionbio.h5` provides objects, functions and a command-line
+Python package `h5` provides objects, functions and a command-line
 interface for working with missionbio hdf5 files.
 
 Command-line interface

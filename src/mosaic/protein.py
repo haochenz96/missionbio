@@ -3,10 +3,10 @@ import pandas as pd
 from sklearn.mixture import GaussianMixture as GMM
 from sklearn.neighbors import KernelDensity
 
-from missionbio.mosaic.assay import _Assay
-from missionbio.mosaic.constants import COLORS, NORMALIZED_READS, READS
-from missionbio.mosaic.plotting import plt, require_seaborn, sns
-from missionbio.mosaic.utils import extend_docs
+from mosaic.assay import _Assay
+from mosaic.constants import COLORS, NORMALIZED_READS, READS
+from mosaic.plotting import plt, require_seaborn, sns
+from mosaic.utils import extend_docs
 
 
 @extend_docs
@@ -14,7 +14,7 @@ class Protein(_Assay):
     """
     Container for Protein data
 
-    Inherits most methods from :class:`missionbio.mosaic.assay._Assay`.
+    Inherits most methods from :class:`mosaic.assay._Assay`.
     See that for the documentation on other methods and visualizations.
 
     .. rubric:: Algorithms
@@ -43,10 +43,10 @@ class Protein(_Assay):
         Parameters
         ----------
         args : list
-            To be passed to missionbio.mosaic.assay object.
+            To be passed to mosaic.assay object.
 
         kwargs : dict
-            To be passed to missionbio.mosaic.assay object.
+            To be passed to mosaic.assay object.
         """
         super().__init__(*args, **kwargs)
 
@@ -311,7 +311,7 @@ class Protein(_Assay):
 
     def run_umap(self, **kwargs):
         """
-        Extends :meth:`missionbio.mosaic.assay._Assay.run_umap`
+        Extends :meth:`mosaic.assay._Assay.run_umap`
 
         Sets the default values for the dna UMAP.
         n_neighbors=50, metric='cosine', min_dist=0
@@ -344,7 +344,7 @@ class Protein(_Assay):
 
         See also
         --------
-        :meth:`missionbio.mosaic.assay._Assay.violinplot`
+        :meth:`mosaic.assay._Assay.violinplot`
         """
 
         ab_reads = np.log10(self.layers[READS] + 1)

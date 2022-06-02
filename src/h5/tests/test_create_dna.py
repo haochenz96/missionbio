@@ -5,9 +5,9 @@ from unittest import TestCase
 import allel
 import numpy as np
 
-from missionbio.h5.constants import AF
-from missionbio.h5.create.dna import VCFFile, create_dna_assay
-from missionbio.h5.tests.base import TEST_METADATA, TEST_VCF
+from h5.constants import AF
+from h5.create.dna import VCFFile, create_dna_assay
+from h5.tests.base import TEST_METADATA, TEST_VCF
 
 
 class CreateDnaAssayTests(TestCase):

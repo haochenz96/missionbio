@@ -3,8 +3,8 @@ from typing import Any, Dict, Optional
 import numpy as np
 import pandas as pd
 
-from missionbio.h5.constants import BARCODE, DEFAULT_SAMPLE, ID, RNA_ASSAY, SAMPLE
-from missionbio.h5.data import Assay
+from h5.constants import BARCODE, DEFAULT_SAMPLE, ID, RNA_ASSAY, SAMPLE
+from h5.data import Assay
 
 
 def create_rna_assay(counts_tsv: str, *, metadata: Optional[Dict[str, Any]] = None) -> Assay:

@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import h5py
 
-from missionbio.h5.constants import (
+from h5.constants import (
     ASSAYS,
     COL_ATTRS,
     DNA_ASSAY,
@@ -11,9 +11,9 @@ from missionbio.h5.constants import (
     METADATA,
     ROW_ATTRS,
 )
-from missionbio.h5.data import H5Reader, H5Writer
-from missionbio.h5.filter import DefaultFilter, stats
-from missionbio.h5.tests.base import TEST_FILTER_DNA, get_temp_writable_path
+from h5.data import H5Reader, H5Writer
+from h5.filter import DefaultFilter, stats
+from h5.tests.base import TEST_FILTER_DNA, get_temp_writable_path
 
 FILTERED_KEY = "filtered"
 

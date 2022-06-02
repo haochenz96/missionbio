@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from missionbio.h5.utils import find_common_keys
+from h5.utils import find_common_keys
 
 
 class FindCommonKeysTests(TestCase):

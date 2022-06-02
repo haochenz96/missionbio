@@ -4,7 +4,7 @@ from unittest.mock import MagicMock as Mock
 import h5py
 import numpy as np
 
-from missionbio.h5.constants import (
+from h5.constants import (
     ASSAYS,
     BARCODE,
     COL_ATTRS,
@@ -17,9 +17,9 @@ from missionbio.h5.constants import (
     SAMPLE,
     SDK_VERSION,
 )
-from missionbio.h5.data import Assay
-from missionbio.h5.data.writer import H5Writer
-from missionbio.h5.tests.base import dummy_assay, get_temp_writable_path, sample_metadata
+from h5.data import Assay
+from h5.data.writer import H5Writer
+from h5.tests.base import dummy_assay, get_temp_writable_path, sample_metadata
 
 
 class MBWriterTests(TestCase):
