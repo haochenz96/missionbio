@@ -23,6 +23,18 @@ Install the `mosaic` package to the environment with:
 
     pip install -e /path/to/mosaic
 
+## Install TEA (Tapestri Express Analysis)
+
+It is highly recommended to install `TEA`, which provides a set of utility tools for analyzing Tapestri data, along with `Mosaic`.
+
+It an be obtained by
+
+    git clone https://github.com/haochenz96/tea.git
+
+And installed by 
+
+    pip install -e /path/to/tea
+
 ## Usage
 
 A short tutorial on using Mosaic for analyzing single-cell SNV clone is provided in `mosaic_clone_analysis.ipynb`.
