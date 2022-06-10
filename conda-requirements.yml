@@ -1,4 +1,4 @@
-name: mosaic-test
+name: mosaic
 channels:
   - plotly 
   - conda-forge
