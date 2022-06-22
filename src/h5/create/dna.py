@@ -70,10 +70,10 @@ def create_dna_assay(
     for field in custom_fields:
         field = f'calldata/{field}'
         # check if layer is empty (likely absent from the VCF)
-        if vcf[field].any() == '':
+        if vcf.layer(field ).any() == '':
             log.warning(f'{field} is empty, skipping')
             continue
-        assay.add_layer(field, vcf.layer(field, remove_missing=True).T)
+        assay.add_layer(field, vcf.layer(field, remove_missing=True)[:, :, 1].T)
         log.info(f"Added custom field -- {field}")
 
     log.info("Adding cell attributes")
