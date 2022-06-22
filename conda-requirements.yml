@@ -14,7 +14,7 @@ dependencies:
   - python-igraph>=0.8.3
   - requests>=2.22.0
   - scikit-allel>=1.2.1
-  - scikit-learn=1.0.2
+  - scikit-learn>=1.0.2
   - scipy>=1.7.3
   - seaborn>=0.10.1
   - umap-learn>=0.4.6
@@ -23,4 +23,4 @@ dependencies:
   # --- plotly ---
   - ipywidgets>=7.0.0
   - nbformat>=4.2.0
-  - python-kaleido>=0.2.1
+  - python-kaleido # <---- seems to cause some issue on some linux distribution

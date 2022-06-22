@@ -1,4 +1,5 @@
 import logging
+from multiprocessing.sharedctypes import Value
 from typing import Any, Dict, Optional
 
 import allel
@@ -28,9 +29,12 @@ __all__ = ["create_dna_assay"]
 
 log = logging.getLogger(__name__)
 
-
+# @HZ 06/22/2022
+# we want to have more control of which field to add to 'DNA' ASSAY
+# for now, the input "custom_fields" can only be calldata (INFO) fields in the VCF
 def create_dna_assay(
     vcf_file: str,
+    custom_fields: Optional[list] = [],
     metadata: Optional[Dict[str, Any]] = None,
     quality_threshold: Optional[int] = None,
 ) -> Assay:
@@ -38,6 +42,7 @@ def create_dna_assay(
 
     Args:
         vcf_file: path to the vcf file
+        custom_fields: list of custom fields to add to the assay. Has to be a `FORMAT` field in the VCF.
         metadata: assay metadata
         quality_threshold: required quality to put variant in block1
 
@@ -50,16 +55,26 @@ def create_dna_assay(
     assay = Assay.create(DNA_ASSAY)
 
     log.info("Reading vcf file")
-    vcf = VCFFile(vcf_file, quality_threshold=quality_threshold)
+    vcf = VCFFile(vcf_file, quality_threshold=quality_threshold, custom_fields=custom_fields)
 
     log.info("Creating layers")
     assay.add_layer(NGT, vcf.create_ngt(dtype=np.int8).T)
     assay.add_layer(GQ, vcf.layer(VCFFile.GQ, remove_missing=True).T)
     assay.add_layer(RGQ, vcf.layer(VCFFile.RGQ, remove_missing=True).T)
-    ad = vcf.layer(VCFFile.AD, remove_missing=True)[:, :, 1].T
+    ad = vcf.layer(VCFFile.AD, remove_missing=True)[:, :, 1].T # alternate allele depth
     dp = vcf.layer(VCFFile.DP, remove_missing=True).T
     assay.add_layer(DP, dp)
     assay.add_layer(AF, compute_af(ad, dp))
+    
+    # add custom fields (e.g. TLOD)
+    for field in custom_fields:
+        field = f'calldata/{field}'
+        # check if layer is empty (likely absent from the VCF)
+        if vcf[field].any() == '':
+            log.warning(f'{field} is empty, skipping')
+            continue
+        assay.add_layer(field, vcf.layer(field, remove_missing=True).T)
+        log.info(f"Added custom field -- {field}")
 
     log.info("Adding cell attributes")
     assay.add_row_attr("barcode", vcf.layer(VCFFile.BARCODE, sort=False))
@@ -115,15 +130,17 @@ class VCFFile:
     LAYERS = [AD, DP, GQ, GT, RGQ]
     ANNOTATIONS = [ALT, CHROM, POS, QUAL, REF, BARCODE]
 
-    def __init__(self, filename: str, quality_threshold: Optional[int] = None):
-        """Representation for VCF gile
+    def __init__(self, filename: str, quality_threshold: Optional[int] = None, custom_fields: Optional[list] = []):
+        """Representation for VCF file
 
         Args:
             filename: path to the vcf file
             quality_threshold: when set, variants above this thresholds come first
         """
-
-        self.__file = allel.read_vcf(filename, fields=VCFFile.LAYERS + VCFFile.ANNOTATIONS)
+        # for now, custom fields can only be calldata (INFO) fields in the VCF
+        custom_fields = [f'calldata/{field}' for field in custom_fields]
+        fields = list(set(VCFFile.LAYERS + VCFFile.ANNOTATIONS + custom_fields))
+        self.__file = allel.read_vcf(filename, fields=fields) # added option to add custom fields
         self.sorting = None
         self.n_high_quality_variants = 0
         self.set_quality_threshold(quality_threshold)
