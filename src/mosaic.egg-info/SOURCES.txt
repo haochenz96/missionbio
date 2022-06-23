@@ -1,4 +1,5 @@
 LICENSE
+README.md
 pyproject.toml
 setup.py
 src/cli/__init__.py

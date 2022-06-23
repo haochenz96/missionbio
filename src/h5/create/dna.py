@@ -68,12 +68,12 @@ def create_dna_assay(
     
     # add custom fields (e.g. TLOD)
     for field in custom_fields:
-        field = f'calldata/{field}'
+        vcf_field = f'calldata/{field}' # note the distinction between `field` and `vcf_field`- the latter is for retrieving the layer from the VCFFile instance
         # check if layer is empty (likely absent from the VCF)
-        if vcf.layer(field ).any() == '':
-            log.warning(f'{field} is empty, skipping')
+        if vcf.layer(vcf_field).any() == '':
+            log.warning(f'{vcf_field} is empty, skipping')
             continue
-        assay.add_layer(field, vcf.layer(field, remove_missing=True)[:, :, 1].T)
+        assay.add_layer(field, vcf.layer(vcf_field, remove_missing=True)[:, :, 0].T)
         log.info(f"Added custom field -- {field}")
 
     log.info("Adding cell attributes")
@@ -140,7 +140,7 @@ class VCFFile:
         # for now, custom fields can only be calldata (INFO) fields in the VCF
         custom_fields = [f'calldata/{field}' for field in custom_fields]
         fields = list(set(VCFFile.LAYERS + VCFFile.ANNOTATIONS + custom_fields))
-        self.__file = allel.read_vcf(filename, fields=fields) # added option to add custom fields
+        self.__file = allel.read_vcf(filename, fields=fields, fills = {'calldata/TLOD': -100}) # added option to add custom fields
         self.sorting = None
         self.n_high_quality_variants = 0
         self.set_quality_threshold(quality_threshold)
