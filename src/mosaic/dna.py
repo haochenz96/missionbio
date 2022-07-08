@@ -212,7 +212,7 @@ class Dna(_Assay):
         
         #gt = (vaf > het_vaf) + (vaf > hom_vaf)
         ngt_new = np.full_like(ngt, 0) + (alt >= min_alt_read) * (gq >= min_gq) * ((vaf > het_vaf)*1 + (vaf > hom_vaf)*1)
-        ngt_new = np.where(dp <= min_dp, 3, ngt_new)
+        ngt_new = np.where(dp < min_dp, 3, ngt_new)
         
         self.add_layer('NGT', ngt_new)
 
