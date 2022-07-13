@@ -155,69 +155,92 @@ class Cnv(_Assay):
         ploidy = 2 * normalized_counts / diploid_cells_median
         self.add_layer(PLOIDY, ploidy.values)
 
-    def get_gene_names(self):
+    def get_gene_names(self, amplicon_gene_map_file: str = None, gene_name_col: str = GENE_NAME):
         """
-        Fetch gene names from Ensembl for all the amplicons.
+        Get the gene names for each amplicon. If a mapping file is provided it is prioritized; otherwise gene names are fetched from Ensembl. The data is stored in the "gene_name" column attribute.
 
-        The data is stored in the "gene_name" column attribute.
+        For the mapping file, it is required to have the amplicon numbers (e.g. `AMPL00001`) in the first column, as this will be read as the index; it is preferred to store the gene names in the "gene_name" column. Optionally, cytoband information could be provided in the "cytoband" column.
+
+        Inputs:
+
+        amplicon_gene_map_file: str
+            Path to the amplicon gene map file. Should be in tab-delimited column with first column as amplicon ID's, providing mapping between amplicon ID's and gene names. Default: None.
+        
+        gene_name_col: str
+            Name of the column in the amplicon gene map file. Default: :attr:`constants.GENE_NAME`
+
         """
-
         print('Fetching annotation for amplicons.')
-        if 'genome_version' in self.metadata:
-            if isinstance(self.metadata['genome_version'], str):
-                if self.metadata['genome_version'] != 'hg19':
-                    raise NotImplementedError('Annotation available only for the hg19 genome')
-            else:
-                if not (self.metadata['genome_version'] == 'hg19').all():
-                    raise NotImplementedError('Annotation available only for the hg19 genome')
+        
+        # @HZ 07/09/2022
+        if amplicon_gene_map_file is not None:
+            amplicon_gene_map_df = pd.read_csv(amplicon_gene_map_file, sep='\t', index_col = 0)
+            amplicon_list = self.ids()
+            mapped_gene_list = amplicon_gene_map_df.loc[amplicon_list, gene_name_col].values
+            self.add_col_attr(GENE_NAME, mapped_gene_list)
 
-        chrom = self.col_attrs[CHROM]
-        start = self.col_attrs['start_pos']
-        end = self.col_attrs['end_pos']
-        regions = pd.DataFrame([chrom, start, end], index=['chrom', 'start', 'end']).T
+            print(f'[get_gene_names] Added gene names to the "{GENE_NAME}" column attribute.')
 
-        # Sort by position
-        order = self._get_amplicon_order()
+            if 'cytoband' in amplicon_gene_map_df.columns:
+                mapped_cytoband_list =  amplicon_gene_map_df.loc[amplicon_list, 'cytoband'].values
+                self.add_col_attr('cytoband', mapped_cytoband_list)
+                print(f'[get_gene_names] Added cytoband information to the "cytoband" column attribute.')
 
-        # Group regions for fewer API calls
-        group = regions.loc[order, :].reset_index(drop=True)
-        i, j = 0, 1
-        while j < group.shape[0]:
-            r1 = group.loc[i, :]
-            r2 = group.loc[j, :]
-            if r2['chrom'] == r1['chrom'] and (r2['end'] - r1['start']) < 5 * (10 ** 6):  # Ensembl has a 5Mb limit
-                group.loc[i, 'end'] = r2['end']
-                group = group.drop(j).reset_index(drop=True)
-            else:
-                i += 1
-                j += 1
+        else:
+            if 'genome_version' in self.metadata:
+                if isinstance(self.metadata['genome_version'], str):
+                    if self.metadata['genome_version'] != 'hg19':
+                        raise NotImplementedError('Annotation available only for the hg19 genome')
+                else:
+                    if not (self.metadata['genome_version'] == 'hg19').all():
+                        raise NotImplementedError('Annotation available only for the hg19 genome')
 
-        regs = np.array([g[0] + ':' + str(g[1]) + '-' + str(g[2]) for g in group.values])
+            chrom = self.col_attrs[CHROM]
+            start = self.col_attrs['start_pos']
+            end = self.col_attrs['end_pos']
+            regions = pd.DataFrame([chrom, start, end], index=['chrom', 'start', 'end']).T
 
-        # Call the Ensembl API
-        with ThreadPoolExecutor(max_workers=10) as pool:
-            resps = list(pool.map(self._get_ensembl_gene, regs))
+            # Sort by position
+            order = self._get_amplicon_order()
 
-        data = []
-        for resp in resps:
-            for r in resp:
-                data.append([r['external_name'], r['seq_region_name'], r['start'], r['end']])
-        data = pd.DataFrame(data, columns=['gene', 'chrom', 'start', 'end'])
-        data = data.drop_duplicates()
+            # Group regions for fewer API calls
+            group = regions.loc[order, :].reset_index(drop=True)
+            i, j = 0, 1
+            while j < group.shape[0]:
+                r1 = group.loc[i, :]
+                r2 = group.loc[j, :]
+                if r2['chrom'] == r1['chrom'] and (r2['end'] - r1['start']) < 5 * (10 ** 6):  # Ensembl has a 5Mb limit
+                    group.loc[i, 'end'] = r2['end']
+                    group = group.drop(j).reset_index(drop=True)
+                else:
+                    i += 1
+                    j += 1
 
-        # Assign gene names to each region
-        genes = []
-        for c, s, e in zip(chrom, start, end):
-            filt = (data['chrom'] == c) & (data['start'] < e) & (s < data['end'])
-            g = data.loc[filt, 'gene']
-            if len(g) == 0:
-                genes.append('Unknown')
-            else:
-                genes.append('/'.join(g.values))
+            regs = np.array([g[0] + ':' + str(g[1]) + '-' + str(g[2]) for g in group.values])
 
-        self.add_col_attr(GENE_NAME, np.array(genes))
+            # Call the Ensembl API
+            with ThreadPoolExecutor(max_workers=10) as pool:
+                resps = list(pool.map(self._get_ensembl_gene, regs))
 
-        print(f'Added gene names to the "{GENE_NAME}" column attribute')
+            data = []
+            for resp in resps:
+                for r in resp:
+                    data.append([r['external_name'], r['seq_region_name'], r['start'], r['end']])
+            data = pd.DataFrame(data, columns=['gene', 'chrom', 'start', 'end'])
+            data = data.drop_duplicates()
+
+            # Assign gene names to each region
+            genes = []
+            for c, s, e in zip(chrom, start, end):
+                filt = (data['chrom'] == c) & (data['start'] < e) & (s < data['end'])
+                g = data.loc[filt, 'gene']
+                if len(g) == 0:
+                    genes.append('Unknown')
+                else:
+                    genes.append('/'.join(g.values))
+
+            self.add_col_attr(GENE_NAME, np.array(genes))
+            print(f'Added gene names to the "{GENE_NAME}" column attribute')
 
     def _get_amplicon_order(self):
         """
@@ -295,16 +318,38 @@ class Cnv(_Assay):
                 self.get_gene_names()
 
             genes = self.col_attrs[GENE_NAME].copy()
-            order = genes.argsort()
-            genes = self.col_attrs[GENE_NAME][order]
+            # order = genes.argsort()
+            # @HZ 07/13/2022 -- might be better to sort by genomic coordinates
+            order = self._get_amplicon_order() 
             ids = self.ids()[order]
+
+            genes = self.col_attrs[GENE_NAME][order]
+            chroms = 'chr' + self.col_attrs[CHROM][order]
+            genes += '<br>' + chroms
+            if 'cytoband' in self.col_attrs:
+                cytobands = self.col_attrs['cytoband'][order]
+                genes += ' ' + cytobands
             return ids, genes
 
         elif isinstance(features, str) and features == 'positions':
             order = self._get_amplicon_order()
             ids = self.ids()[order]
-            chroms = self.col_attrs[CHROM][order]
-            return ids, 'chr' + chroms
+
+            chroms = 'chr' + self.col_attrs[CHROM][order]
+            # if 'cytoband' in self.col_attrs:
+            #     cytobands = self.col_attrs['cytoband'][order]
+            #     chroms += cytobands
+
+            # if GENE_NAME not in self.col_attrs:
+            #     print("[_get_ids_from_features] gene_name not found in amplicon column attribute. Using chromosome number.")
+
+            #     return ids, chroms
+            # else:
+            #     print('[_get_ids_from_features] gene_name found in amplicon column attribute.' )
+            #     gene_names = self.col_attrs[GENE_NAME][order]
+            #     gene_names += '<br>' + chroms
+            #     return ids, gene_names
+            return ids, chroms
 
         elif isinstance(features, str):
             explaination = f"'features' must be list-like or one of {'genes', 'positions'}"
@@ -374,16 +419,23 @@ class Cnv(_Assay):
         of gene names eg. ['BRAF', 'TP53']
         """
 
-        ids, features = self._get_ids_from_features(features)
+        # renamed `features` to `plot_feature_groups` to be more informative
+        ids, plot_feature_groups = self._get_ids_from_features(features)
 
         fig = super().heatmap(attribute, splitby=splitby, features=ids, bars_order=bars_order, convolve=convolve, title=title)
 
-        if features is not None and set(features) != set(fig.layout.xaxis2.ticktext):
-            un, ind, cnts = np.unique(features, return_index=True, return_counts=True)
+        if plot_feature_groups is not None and set(plot_feature_groups) != set(fig.layout.xaxis2.ticktext):
+            un, ind, cnts = np.unique(plot_feature_groups, return_index=True, return_counts=True)
             ticks = (ind + cnts / 2).astype(int)
-            fig.layout.xaxis2.ticktext = features[ticks]
+            fig.layout.xaxis2.ticktext = plot_feature_groups[ticks]
             fig.layout.xaxis2.tickvals = ticks
-            fig.data[1].x = ids + '<br>' + features
+
+            # @HZ 07/13/2022: when plotting chromosomal positions, we want to add the gene names to the hover labels
+            if features == 'positions' and GENE_NAME in self.col_attrs.keys():
+                order = self._get_amplicon_order()
+                plot_feature_groups += '<br>' + self.col_attrs[GENE_NAME][order]
+            
+            fig.data[1].x = ids + '<br>' + plot_feature_groups
 
             for i in ind:
                 fig.add_vline(i - 0.5, line_color='lightcyan', line_width=1, row=1, col=2)
