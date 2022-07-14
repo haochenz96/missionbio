@@ -45,4 +45,4 @@ And installed by
 
 ## Usage
 
-A short tutorial on using Mosaic for analyzing single-cell SNV clone is provided in `mosaic_clone_analysis.ipynb`.
+Short tutorial notebooks on using Mosaic for analyzing single-cell SNV and CNV clones are provided in `tutorials/`.
