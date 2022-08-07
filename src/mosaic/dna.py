@@ -178,8 +178,7 @@ class Dna(_Assay):
         ----------
         het_vaf : float [0, 100]
             minimum vaf for a variant in one cell to be called heterozygously mutated
-            default: 25
-
+            default: 20
         hom_vaf : float [0, 100]
             minimum vaf for a variant in one cell to be called homozygously mutated
         min_dp : int [0, inf]
@@ -212,13 +211,17 @@ class Dna(_Assay):
         
         #gt = (vaf > het_vaf) + (vaf > hom_vaf)
         ngt_new = np.full_like(ngt, 0) + (alt >= min_alt_read) * (gq >= min_gq) * ((vaf > het_vaf)*1 + (vaf > hom_vaf)*1)
-        ngt_new = np.where(dp < min_dp, 3, ngt_new)
-        
+
+        # @HZ 07/18/2022: we might want to differentiate between low-confidence and real homdel
+        ngt_new = np.where(dp < 1, 3, ngt_new) # convert SNVs with strictly 0 read to homdel ('3')
+        ngt_new = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 4, ngt_new) # convert SNVs with low depth/low alt-read to low-confidence mutant calls ('4')
         self.add_layer('NGT', ngt_new)
 
-        mut = (self.layers['NGT'] %3 != 0)
-
+        mut = (self.layers['NGT'] %3 != 0) # for the 'mut' layer, we only want to keep the variants that are not WT or missing. So low-confidence calls are included as 'mut' as well.
         self.add_layer('mut', mut)
+
+        mut_filtered = (self.layers['NGT'] == 1) | (self.layers['NGT'] == 2)
+        self.add_layer('mut_filtered', mut_filtered)
 
 
     def filter_variants(self, min_dp=10, min_gq=0, min_vaf=20, max_vaf=100, min_prct_cells=25, min_mut_prct_cells=0.5, min_mut_num_cells=None, min_std=0, method='mb', min_alt_read = 5):
@@ -300,6 +303,10 @@ class Dna(_Assay):
         # ^^^    
         # @HZ: this is dangerous since this will only trim down variants already filtered by the default thresholds
 
+        if 'NGT_FILTERED' not in self.layers.keys():
+            print('[filter_variants] NGT_filtered layer not present. Adding NGT_FILTERED layer.')
+        else:
+            print('[filter_variants] NGT_filtered layer already present. Overwriting NGT_FILTERED layer.')
         self.add_layer(NGT_FILTERED, gt)
 
         num_cells = len(self.barcodes())
@@ -1058,11 +1065,18 @@ class Dna(_Assay):
         """
 
         if isinstance(layer, str) and layer == AF_MISSING:
-            cols = sns.cubehelix_palette(40, rot=(-0.2), light=0.3, dark=0.9)
-            cols = [to_hex(c) for c in cols]
-            cols = list(zip(np.linspace(1 / 3, 1, len(cols)), cols))
-            scale = [(0, "#000000"), (0.33, "#000000")]
-            scale.extend(cols)
+            # @HZ 07/18/2022: updated colorscale for AF_MISSING heatmap
+            # cols = sns.cubehelix_palette(40, rot=(-0.2), light=0.3, dark=0.9)
+            # cols = [to_hex(c) for c in cols]
+            # cols = list(zip(np.linspace(1 / 3, 1, len(cols)), cols))
+            # scale = [(0, "#000000"), (0.33, "#000000")]
+            # scale.extend(cols)
+            scale = [
+                [0, 'rgb(255,255,51)'], 
+                [1/3, 'rgb(204,229,255)'], 
+                [2/3, 'rgb(112,112,255)'],
+                [1, 'rgb(255,0,0)']
+            ]
 
             fig.update_layout(coloraxis=dict(colorscale=scale,
                                              colorbar_tickvals=[-50, 0, 50, 100],
@@ -1083,16 +1097,31 @@ class Dna(_Assay):
                                              cmax=100,
                                              cmin=0))
         elif isinstance(layer, str) and (layer == NGT or layer == NGT_FILTERED):
-            cols = sns.cubehelix_palette(3, rot=(-0.2), light=0.3, dark=0.9)
-            cols = [to_hex(c) for c in cols]
-            scale = [(0 / 4, cols[0]), (1 / 4, cols[0]),
-                     (1 / 4, cols[1]), (2 / 4, cols[1]),
-                     (2 / 4, cols[2]), (3 / 4, cols[2]),
-                     (3 / 4, "#000000"), (4 / 4, "#000000")]
+            # @HZ 07/18/2022: update NGT color scale for improved genotyping method
+            # cols = sns.cubehelix_palette(3, rot=(-0.2), light=0.3, dark=0.9)
+            # cols = [to_hex(c) for c in cols]
+            # scale = [(0 / 4, cols[0]), (1 / 4, cols[0]),
+            #          (1 / 4, cols[1]), (2 / 4, cols[1]),
+            #          (2 / 4, cols[2]), (3 / 4, cols[2]),
+            #          (3 / 4, "#000000"), (4 / 4, "#000000")]
+
+            # fig.update_layout(coloraxis=dict(colorscale=scale,
+            #                                  colorbar_tickvals=[3 / 8, 9 / 8, 15 / 8, 21 / 8],
+            #                                  colorbar_ticktext=['WT', 'HET', 'HOM', 'Missing'],
+            #                                  colorbar_title='Genotype',
+            #                                  cmax=3,
+            #                                  cmin=0))
+            scale = [
+                (0, 'rgb(204,229,255)'), (1/5, 'rgb(204,229,255)'),
+                (1/5, 'rgb(245, 182, 166)'), (2/5, 'rgb(245, 182, 166)'), 
+                (2/5, 'rgb(255, 0, 0)'), (3/5, 'rgb(255, 0, 0)'),
+                (3/5, 'rgb(255, 255, 51)'), (4/5, 'rgb(255, 255, 51)'),
+                (4/5, 'rgb(166, 178, 255)'), (1, 'rgb(166, 178, 255)')
+                    ]
 
             fig.update_layout(coloraxis=dict(colorscale=scale,
-                                             colorbar_tickvals=[3 / 8, 9 / 8, 15 / 8, 21 / 8],
-                                             colorbar_ticktext=['WT', 'HET', 'HOM', 'Missing'],
-                                             colorbar_title='Genotype',
-                                             cmax=3,
-                                             cmin=0))
+                                            colorbar_tickvals=[2 / 5, 6 / 5, 10 / 5, 14 / 5, 18 / 5],
+                                            colorbar_ticktext=['WT', 'HET', 'HOM', 'Missing','Low-conf.'],
+                                            colorbar_title='Genotype',
+                                            cmax=4,
+                                            cmin=0))

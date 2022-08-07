@@ -668,3 +668,20 @@ class Cnv(_Assay):
         ax.text(0.5, -0.12, description, transform=ax.transAxes, fontsize=12, ha='center')
 
         return ax
+
+    # @HZ 07/25/2022
+    def update_coloraxis(self, fig):
+        """
+        Sets the colorscale for CNV when plotting NB_EM-calculated ploidy
+
+        Parameters
+        ----------
+        fig : plotly.Figure
+            The figure whose layout has to
+            be updated.
+        layer : str
+            The layer according to which the
+            coloraxis has to be updated.
+        """
+        pass
+
