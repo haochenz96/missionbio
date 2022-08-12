@@ -167,7 +167,7 @@ class Dna(_Assay):
 
         self.set_labels(labels)
 
-    def genotype_variants(self, het_vaf=20, hom_vaf=80, min_dp=None, min_alt_read = None, min_gq = 0):
+    def genotype_variants(self, het_vaf=20, hom_vaf=80, min_dp=None, min_alt_read = None, min_gq = 0, assign_low_conf_genotype=False):
 
         '''
         @HZ: Mission Bio's method by default seems to already construct the NGT matrix based on their default filtering thresholds (for values see here: https://github.io/mosaic/pages/methods/mosaic.dna.Dna.filter_variants.html#mosaic.dna.Dna.filter_variants)
@@ -187,6 +187,8 @@ class Dna(_Assay):
             minimum alternative read count for a variant to be considered real in one cell (otherwise WT)
         min_gq : int [0, 99]
             minimum genotype quality (HaplotypeCaller) for a variant to be considered real in one cell (otherwise WT)
+        assign_low_conf_genotype : bool
+            if True, assign a separate number (`4`) to low-confidence genotypes (i.e., 0: WT; 1: HET; 2: HOM; 3: MISSING; 4: low-confidence)
         '''
         
         ngt = self.layers[NGT]
@@ -214,7 +216,8 @@ class Dna(_Assay):
 
         # @HZ 07/18/2022: we might want to differentiate between low-confidence and real homdel
         ngt_new = np.where(dp < 1, 3, ngt_new) # convert SNVs with strictly 0 read to homdel ('3')
-        ngt_new = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 4, ngt_new) # convert SNVs with low depth/low alt-read to low-confidence mutant calls ('4')
+        if assign_low_conf_genotype:
+            ngt_new = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 4, ngt_new) # convert SNVs with low depth/low alt-read to low-confidence mutant calls ('4')
         self.add_layer('NGT', ngt_new)
 
         mut = (self.layers['NGT'] %3 != 0) # for the 'mut' layer, we only want to keep the variants that are not WT or missing. So low-confidence calls are included as 'mut' as well.
