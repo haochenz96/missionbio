@@ -210,21 +210,18 @@ class Dna(_Assay):
         # calculate alternative read count
         alt = (np.rint(np.multiply(vaf, dp)/100)).astype(int)
         self.add_layer('alt_read_count', alt)
-        
-        #gt = (vaf > het_vaf) + (vaf > hom_vaf)
-        ngt_new = np.full_like(ngt, 0) + (alt >= min_alt_read) * (gq >= min_gq) * ((vaf > het_vaf)*1 + (vaf > hom_vaf)*1)
 
         # @HZ 07/18/2022: we might want to differentiate between low-confidence and real homdel
-        ngt_new = np.where(dp < 1, 3, ngt_new) # convert SNVs with strictly 0 read to homdel ('3')
+        #gt = (vaf > het_vaf) + (vaf > hom_vaf)
+        ngt_unfiltered = np.full_like(ngt, 0) + (alt > 0) * (gq >= min_gq) * ((vaf > het_vaf)*1 + (vaf > hom_vaf)*1)
+        ngt_unfiltered = np.where(dp < 1, 3, ngt_unfiltered) # convert SNVs with strictly 0 read to homdel ('3')
         ngt_filtered = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 4, ngt_new) # convert SNVs with low depth/low alt-read to low-confidence mutant calls ('4')
-        if assign_low_conf_genotype:
-            self.add_layer('NGT', ngt_filtered)
-        else:
-            self.add_layer('NGT', ngt_new)
+
+        self.add_layer('NGT_unfiltered', ngt_unfiltered)
+        self.add_layer('NGT_filtered', ngt_filtered)
 
         mut = (ngt_filtered %3 != 0) # for the 'mut' layer, we only want to keep the variants that are not WT or missing. So low-confidence calls are included as 'mut' as well.
-        self.add_layer('mut', mut)
-
+        self.add_layer('mut_unfiltered', mut)
         mut_filtered = (ngt_filtered == 1) | (ngt_filtered == 2)
         self.add_layer('mut_filtered', mut_filtered)
 
