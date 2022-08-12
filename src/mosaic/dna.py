@@ -216,14 +216,16 @@ class Dna(_Assay):
 
         # @HZ 07/18/2022: we might want to differentiate between low-confidence and real homdel
         ngt_new = np.where(dp < 1, 3, ngt_new) # convert SNVs with strictly 0 read to homdel ('3')
+        ngt_filtered = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 4, ngt_new) # convert SNVs with low depth/low alt-read to low-confidence mutant calls ('4')
         if assign_low_conf_genotype:
-            ngt_new = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 4, ngt_new) # convert SNVs with low depth/low alt-read to low-confidence mutant calls ('4')
-        self.add_layer('NGT', ngt_new)
+            self.add_layer('NGT', ngt_filtered)
+        else:
+            self.add_layer('NGT', ngt_new)
 
-        mut = (self.layers['NGT'] %3 != 0) # for the 'mut' layer, we only want to keep the variants that are not WT or missing. So low-confidence calls are included as 'mut' as well.
+        mut = (ngt_filtered %3 != 0) # for the 'mut' layer, we only want to keep the variants that are not WT or missing. So low-confidence calls are included as 'mut' as well.
         self.add_layer('mut', mut)
 
-        mut_filtered = (self.layers['NGT'] == 1) | (self.layers['NGT'] == 2)
+        mut_filtered = (ngt_filtered == 1) | (ngt_filtered == 2)
         self.add_layer('mut_filtered', mut_filtered)
 
 
