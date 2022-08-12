@@ -215,7 +215,7 @@ class Dna(_Assay):
         #gt = (vaf > het_vaf) + (vaf > hom_vaf)
         ngt_unfiltered = np.full_like(ngt, 0) + (alt > 0) * (gq >= min_gq) * ((vaf > het_vaf)*1 + (vaf > hom_vaf)*1)
         ngt_unfiltered = np.where(dp < 1, 3, ngt_unfiltered) # convert SNVs with strictly 0 read to homdel ('3')
-        ngt_filtered = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 4, ngt_new) # convert SNVs with low depth/low alt-read to low-confidence mutant calls ('4')
+        ngt_filtered = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 4, ngt_unfiltered) # convert SNVs with low depth/low alt-read to low-confidence mutant calls ('4')
 
         self.add_layer('NGT_unfiltered', ngt_unfiltered)
         self.add_layer('NGT_filtered', ngt_filtered)
