@@ -192,7 +192,7 @@ class Dna(_Assay):
         '''
         
         ngt = self.layers[NGT]
-        self.del_layer('NGT')
+        # self.del_layer('NGT')
 
         dp = self.layers[DP]
         vaf = self.layers[AF]
