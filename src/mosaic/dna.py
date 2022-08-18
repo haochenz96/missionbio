@@ -1098,7 +1098,7 @@ class Dna(_Assay):
                                              colorbar_title='VAF',
                                              cmax=100,
                                              cmin=0))
-        elif isinstance(layer, str) and (layer == NGT or layer == NGT_FILTERED):
+        elif isinstance(layer, str) and ('NGT' in layer):
             # @HZ 07/18/2022: update NGT color scale for improved genotyping method
             # cols = sns.cubehelix_palette(3, rot=(-0.2), light=0.3, dark=0.9)
             # cols = [to_hex(c) for c in cols]
