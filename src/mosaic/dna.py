@@ -167,7 +167,7 @@ class Dna(_Assay):
 
         self.set_labels(labels)
 
-    def genotype_variants(self, het_vaf=20, hom_vaf=80, min_dp=None, min_alt_read = None, min_gq = 0, assign_low_conf_genotype=False):
+    def genotype_variants(self, het_vaf=20, hom_vaf=80, min_dp=None, min_alt_read = None, min_gq = 0):
 
         '''
         @HZ: Mission Bio's method by default seems to already construct the NGT matrix based on their default filtering thresholds (for values see here: https://github.io/mosaic/pages/methods/mosaic.dna.Dna.filter_variants.html#mosaic.dna.Dna.filter_variants)
@@ -178,7 +178,8 @@ class Dna(_Assay):
         ----------
         het_vaf : float [0, 100]
             minimum vaf for a variant in one cell to be called heterozygously mutated
-            default: 20
+            default: 25
+
         hom_vaf : float [0, 100]
             minimum vaf for a variant in one cell to be called homozygously mutated
         min_dp : int [0, inf]
@@ -187,12 +188,10 @@ class Dna(_Assay):
             minimum alternative read count for a variant to be considered real in one cell (otherwise WT)
         min_gq : int [0, 99]
             minimum genotype quality (HaplotypeCaller) for a variant to be considered real in one cell (otherwise WT)
-        assign_low_conf_genotype : bool
-            if True, assign a separate number (`4`) to low-confidence genotypes (i.e., 0: WT; 1: HET; 2: HOM; 3: MISSING; 4: low-confidence)
         '''
         
         ngt = self.layers[NGT]
-        # self.del_layer('NGT')
+        self.del_layer('NGT')
 
         dp = self.layers[DP]
         vaf = self.layers[AF]
@@ -210,20 +209,16 @@ class Dna(_Assay):
         # calculate alternative read count
         alt = (np.rint(np.multiply(vaf, dp)/100)).astype(int)
         self.add_layer('alt_read_count', alt)
-
-        # @HZ 07/18/2022: we might want to differentiate between low-confidence and real homdel
+        
         #gt = (vaf > het_vaf) + (vaf > hom_vaf)
-        ngt_unfiltered = np.full_like(ngt, 0) + (alt > 0) * (gq >= min_gq) * ((vaf > het_vaf)*1 + (vaf > hom_vaf)*1)
-        ngt_unfiltered = np.where(dp < 1, 3, ngt_unfiltered) # convert SNVs with strictly 0 read to homdel ('3')
-        ngt_filtered = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 4, ngt_unfiltered) # convert SNVs with low depth/low alt-read to low-confidence mutant calls ('4')
+        ngt_new = np.full_like(ngt, 0) + (alt >= min_alt_read) * (gq >= min_gq) * ((vaf > het_vaf)*1 + (vaf > hom_vaf)*1)
+        ngt_new = np.where(dp < min_dp, 3, ngt_new)
+        
+        self.add_layer('NGT', ngt_new)
 
-        self.add_layer('NGT_unfiltered', ngt_unfiltered)
-        self.add_layer('NGT_filtered', ngt_filtered)
+        mut = (self.layers['NGT'] %3 != 0)
 
-        mut = (ngt_filtered %3 != 0) # for the 'mut' layer, we only want to keep the variants that are not WT or missing. So low-confidence calls are included as 'mut' as well.
-        self.add_layer('mut_unfiltered', mut)
-        mut_filtered = (ngt_filtered == 1) | (ngt_filtered == 2)
-        self.add_layer('mut_filtered', mut_filtered)
+        self.add_layer('mut', mut)
 
 
     def filter_variants(self, min_dp=10, min_gq=0, min_vaf=20, max_vaf=100, min_prct_cells=25, min_mut_prct_cells=0.5, min_mut_num_cells=None, min_std=0, method='mb', min_alt_read = 5):
