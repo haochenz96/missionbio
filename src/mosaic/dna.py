@@ -1,4 +1,4 @@
-import warnings
+import warnings, logging
 from copy import deepcopy
 
 import numpy as np
@@ -167,7 +167,7 @@ class Dna(_Assay):
 
         self.set_labels(labels)
 
-    def genotype_variants(self, het_vaf=20, hom_vaf=80, min_dp=None, min_alt_read = None, min_gq = 0, assign_low_conf_genotype=False):
+    def genotype_variants(self, het_vaf=20, hom_vaf=80, min_dp=None, min_alt_read = None, min_gq = -1, assign_low_conf_genotype=False):
 
         '''
         @HZ: Mission Bio's method by default seems to already construct the NGT matrix based on their default filtering thresholds (for values see here: https://github.io/mosaic/pages/methods/mosaic.dna.Dna.filter_variants.html#mosaic.dna.Dna.filter_variants)
@@ -190,42 +190,67 @@ class Dna(_Assay):
         assign_low_conf_genotype : bool
             if True, assign a separate number (`4`) to low-confidence genotypes (i.e., 0: WT; 1: HET; 2: HOM; 3: MISSING; 4: low-confidence)
         '''
-        
-        ngt = self.layers[NGT]
+        try:
+            ngt = self.layers[NGT]
+        except KeyError:
+            logging.warning('original NGT layer not found.')
+
         # self.del_layer('NGT')
 
         dp = self.layers[DP]
         vaf = self.layers[AF]
-        gq=self.layers[GQ]
+        try:
+            gq = self.layers[GQ]
+        except KeyError:
+            logging.warning('GQ layer not found. Using all zeros.')
+            gq = np.zeros_like(dp)
 
         # by default:
         # min_dp = mean - 1.5 * std;
         # min_alt_read = 0.4 * min_dp 
         if min_dp is None:
             min_dp = dp.mean() - 1.5 * dp.mean(axis=0).std()
-            print(f'using default setting for min_dp, value= {min_dp}')
+            logging.warning(f'min_dp not given; using default setting for min_dp, value= {min_dp}.')
+        else:
+            logging.info(f'min_dp given, value= {min_dp}.')
+
         if min_alt_read is None:
-            min_alt_read = 0.4*min_dp
-            print(f'using default setting for min_alt_read, value= {min_alt_read}')
-        # calculate alternative read count
-        alt = (np.rint(np.multiply(vaf, dp)/100)).astype(int)
-        self.add_layer('alt_read_count', alt)
+            min_alt_read = 0.4 * min_dp
+            logging.warning(f'min_alt_read not given; using default setting for min_alt_read, value= {min_alt_read}.')
+        else:
+            logging.info(f'min_alt_read given, value= {min_alt_read}.')
+        if not 'alt_read_count' in self.layers:   
+            # calculate alternative read count
+            alt = (np.rint(np.multiply(vaf, dp)/100)).astype(int)
+            self.add_layer('alt_read_count', alt)
+            logging.warning(f'`alt_read_count` not found in layers; calculated based on DP and VAF and added to layers.')
+        else:
+            alt = self.layers['alt_read_count']
 
         # @HZ 07/18/2022: we might want to differentiate between low-confidence and real homdel
         #gt = (vaf > het_vaf) + (vaf > hom_vaf)
-        ngt_unfiltered = np.full_like(ngt, 0) + (alt > 0) * (gq >= min_gq) * ((vaf > het_vaf)*1 + (vaf > hom_vaf)*1)
+        ngt_unfiltered = np.full_like(vaf, 0) + (alt > 0) * (gq >= min_gq) * ((vaf > het_vaf)*1 + (vaf > hom_vaf)*1)
         ngt_unfiltered = np.where(dp < 1, 3, ngt_unfiltered) # convert SNVs with strictly 0 read to homdel ('3')
-        ngt_filtered = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 4, ngt_unfiltered) # convert SNVs with low depth/low alt-read to low-confidence mutant calls ('4')
+
+        if assign_low_conf_genotype:
+            ngt_filtered = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 4, ngt_unfiltered) # convert SNVs with low depth/low alt-read to low-confidence mutant calls ('4')
+        else:
+            ngt_filtered = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 0, ngt_unfiltered) # convert SNVs with low depth/low alt-read to WT ('0')
 
         self.add_layer('NGT_unfiltered', ngt_unfiltered)
+        logging.info('added layer `NGT_unfiltered` ')
         self.add_layer('NGT_filtered', ngt_filtered)
+        logging.info('added layer `NGT_filtered` ')
 
         mut = (ngt_filtered %3 != 0) # for the 'mut' layer, we only want to keep the variants that are not WT or missing. So low-confidence calls are included as 'mut' as well.
         self.add_layer('mut_unfiltered', mut)
+        logging.info('added layer `mut_unfiltered` ')
+
         mut_filtered = (ngt_filtered == 1) | (ngt_filtered == 2)
-        self.add_layer('mut_filtered', mut_filtered)
+        self.add_layer('mut_filtered', mut_filtered) # if assign_low_conf_genotype is False, this layer is the same as 'mut_unfiltered'
 
 
+    # @HZ 09/19/2022: deprecated with the new genotype_variants function
     def filter_variants(self, min_dp=10, min_gq=0, min_vaf=20, max_vaf=100, min_prct_cells=25, min_mut_prct_cells=0.5, min_mut_num_cells=None, min_std=0, method='mb', min_alt_read = 5):
         """
         Find informative variants.
