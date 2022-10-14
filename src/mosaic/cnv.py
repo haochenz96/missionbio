@@ -176,6 +176,8 @@ class Cnv(_Assay):
         if amplicon_gene_map_file is not None:
             amplicon_gene_map_df = pd.read_csv(amplicon_gene_map_file, sep='\t', index_col = 0)
             amplicon_list = self.ids()
+            assert all([amplicon in amplicon_gene_map_df.index for amplicon in amplicon_list]), 'Not all amplicons are in the amplicon_gene_map_file'
+            
             mapped_gene_list = amplicon_gene_map_df.loc[amplicon_list, gene_name_col].values
             self.add_col_attr(GENE_NAME, mapped_gene_list)
 
