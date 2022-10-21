@@ -239,8 +239,8 @@ class Dna(_Assay):
 
         self.add_layer('NGT_unfiltered', ngt_unfiltered)
         logging.info('added layer `NGT_unfiltered` ')
-        self.add_layer('NGT_filtered', ngt_filtered)
-        logging.info('added layer `NGT_filtered` ')
+        self.add_layer('NGT', ngt_filtered)
+        logging.info('added layer `NGT` ') # switched from NGT_filtered to NGT for use in filter_variants()
 
         mut = (ngt_filtered %3 != 0) # for the 'mut' layer, we only want to keep the variants that are not WT or missing. So low-confidence calls are included as 'mut' as well.
         self.add_layer('mut_unfiltered', mut)
