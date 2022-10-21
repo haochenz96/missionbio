@@ -1094,31 +1094,34 @@ class Dna(_Assay):
                                              cmax=100,
                                              cmin=0))
         elif isinstance(layer, str) and ('NGT' in layer):
-            # @HZ 07/18/2022: update NGT color scale for improved genotyping method
-            # cols = sns.cubehelix_palette(3, rot=(-0.2), light=0.3, dark=0.9)
-            # cols = [to_hex(c) for c in cols]
-            # scale = [(0 / 4, cols[0]), (1 / 4, cols[0]),
-            #          (1 / 4, cols[1]), (2 / 4, cols[1]),
-            #          (2 / 4, cols[2]), (3 / 4, cols[2]),
-            #          (3 / 4, "#000000"), (4 / 4, "#000000")]
-
-            # fig.update_layout(coloraxis=dict(colorscale=scale,
-            #                                  colorbar_tickvals=[3 / 8, 9 / 8, 15 / 8, 21 / 8],
-            #                                  colorbar_ticktext=['WT', 'HET', 'HOM', 'Missing'],
-            #                                  colorbar_title='Genotype',
-            #                                  cmax=3,
-            #                                  cmin=0))
-            scale = [
-                (0, 'rgb(204,229,255)'), (1/5, 'rgb(204,229,255)'),
-                (1/5, 'rgb(245, 182, 166)'), (2/5, 'rgb(245, 182, 166)'), 
-                (2/5, 'rgb(255, 0, 0)'), (3/5, 'rgb(255, 0, 0)'),
-                (3/5, 'rgb(255, 255, 51)'), (4/5, 'rgb(255, 255, 51)'),
-                (4/5, 'rgb(166, 178, 255)'), (1, 'rgb(166, 178, 255)')
-                    ]
+            
+            # @HZ: original MB color scale (used in Nat. Comm. 2022 publication)
+            cols = sns.cubehelix_palette(3, rot=(-0.2), light=0.3, dark=0.9)
+            cols = [to_hex(c) for c in cols]
+            scale = [(0 / 4, cols[0]), (1 / 4, cols[0]),
+                     (1 / 4, cols[1]), (2 / 4, cols[1]),
+                     (2 / 4, cols[2]), (3 / 4, cols[2]),
+                     (3 / 4, "#000000"), (4 / 4, "#000000")]
 
             fig.update_layout(coloraxis=dict(colorscale=scale,
-                                            colorbar_tickvals=[2 / 5, 6 / 5, 10 / 5, 14 / 5, 18 / 5],
-                                            colorbar_ticktext=['WT', 'HET', 'HOM', 'Missing','Low-conf.'],
-                                            colorbar_title='Genotype',
-                                            cmax=4,
-                                            cmin=0))
+                                             colorbar_tickvals=[3 / 8, 9 / 8, 15 / 8, 21 / 8],
+                                             colorbar_ticktext=['WT', 'HET', 'HOM', 'Missing'],
+                                             colorbar_title='Genotype',
+                                             cmax=3,
+                                             cmin=0))
+
+            # # @HZ 07/18/2022: update NGT color scale for improved genotyping method
+            # scale = [
+            #     (0, 'rgb(204,229,255)'), (1/5, 'rgb(204,229,255)'),
+            #     (1/5, 'rgb(245, 182, 166)'), (2/5, 'rgb(245, 182, 166)'), 
+            #     (2/5, 'rgb(255, 0, 0)'), (3/5, 'rgb(255, 0, 0)'),
+            #     (3/5, 'rgb(255, 255, 51)'), (4/5, 'rgb(255, 255, 51)'),
+            #     (4/5, 'rgb(166, 178, 255)'), (1, 'rgb(166, 178, 255)')
+            #         ]
+
+            # fig.update_layout(coloraxis=dict(colorscale=scale,
+            #                                 colorbar_tickvals=[2 / 5, 6 / 5, 10 / 5, 14 / 5, 18 / 5],
+            #                                 colorbar_ticktext=['WT', 'HET', 'HOM', 'Missing','Low-conf.'],
+            #                                 colorbar_title='Genotype',
+            #                                 cmax=4,
+            #                                 cmin=0))
