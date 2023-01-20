@@ -242,11 +242,11 @@ class Dna(_Assay):
         self.add_layer('NGT', ngt_filtered)
         logging.info('added layer `NGT` ') # switched from NGT_filtered to NGT for use in filter_variants()
 
-        mut = (ngt_filtered %3 != 0) # for the 'mut' layer, we only want to keep the variants that are not WT or missing. So low-confidence calls are included as 'mut' as well.
+        mut = ((ngt_filtered %3 != 0)).astype(int) # for the 'mut' layer, we only want to keep the variants that are not WT or missing. So low-confidence calls are included as 'mut' as well.
         self.add_layer('mut_unfiltered', mut)
         logging.info('added layer `mut_unfiltered` ')
 
-        mut_filtered = (ngt_filtered == 1) | (ngt_filtered == 2)
+        mut_filtered = ((ngt_filtered == 1) | (ngt_filtered == 2)).astype(int)
         self.add_layer('mut_filtered', mut_filtered) # if assign_low_conf_genotype is False, this layer is the same as 'mut_unfiltered'
 
 

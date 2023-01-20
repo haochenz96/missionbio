@@ -1509,7 +1509,7 @@ class _Assay(H5_Assay):
             # append the missing features as undetected (value = 0)
             for i in list(set(features) - set(self.ids())):
                 print(f'{i} not in ids')
-                data[i] = np.zeros((data.shape[0], 1)) # @HZ: potentially problematic because it only applies to dna
+                data[i] = -np.ones((data.shape[0], 1)) # @HZ: give value of `-1``
 
             data = data[features]
         else:
