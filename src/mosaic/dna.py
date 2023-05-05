@@ -167,7 +167,7 @@ class Dna(_Assay):
 
         self.set_labels(labels)
 
-    def genotype_variants(self, het_vaf=20, hom_vaf=80, min_dp=None, min_alt_read = None, min_gq = -1, assign_low_conf_genotype=False):
+    def genotype_variants(self, het_vaf=20, hom_vaf=80, min_dp=8, min_alt_read = 3, min_gq = -1, assign_low_conf_genotype=False):
 
         '''
         @HZ: Mission Bio's method by default seems to already construct the NGT matrix based on their default filtering thresholds (for values see here: https://github.io/mosaic/pages/methods/mosaic.dna.Dna.filter_variants.html#mosaic.dna.Dna.filter_variants)
@@ -234,6 +234,7 @@ class Dna(_Assay):
 
         if assign_low_conf_genotype:
             ngt_filtered = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 4, ngt_unfiltered) # convert SNVs with low depth/low alt-read to low-confidence mutant calls ('4')
+
         else:
             ngt_filtered = np.where( (alt > 0) & (((dp > 0) & (dp < min_dp)) | (alt < min_alt_read)) , 0, ngt_unfiltered) # convert SNVs with low depth/low alt-read to WT ('0')
 
