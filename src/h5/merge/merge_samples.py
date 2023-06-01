@@ -142,14 +142,20 @@ def merge_col_attrs(assays: List[Assay]) -> Tuple[Dict[str, np.array], List[np.a
         dtype = np.find_common_type(dtypes, [])
         if dtype is None:
             raise ValueError(f"Could not merge col_attrs {attr}. Unable to unify dtypes ({dtypes})")
-        merged_attrs[attr] = np.empty(all_ids.shape, dtype)
-        for assay in assays:
-            data = assay.col_attrs[attr]
+        try:
+            merged_attrs[attr] = np.empty(all_ids.shape, dtype)
 
-            ca = set(assay.col_attrs[ID])
-            matching = np.array([id_ in ca for id_ in all_ids])
-            merged_attrs[attr][matching] = data
-            matching_ids.append(matching)
+            for assay in assays:
+                data = assay.col_attrs[attr]
+
+                ca = set(assay.col_attrs[ID])
+                matching = np.array([id_ in ca for id_ in all_ids])
+                
+                merged_attrs[attr][matching] = data
+                matching_ids.append(matching)
+        except TypeError:
+            log.warning(f"Could not merge col_attr <<{attr}》〉, possibly due to formatting issue")
+            merged_attrs.pop(attr, None)
 
     for assay, matching in zip(assays, matching_ids):
         log.info(
@@ -231,7 +237,8 @@ def merge_layers(
         for assay, matching in zip(assays, matching_ids):
             layer_data = assay.layers[layer]
             expanded_layer = np.zeros(
-                (layer_data.shape[0], len(col_attrs[ID])), dtype=layer_data.dtype
+                (layer_data.shape[0], len(col_attrs[ID])), 
+                # dtype=layer_data.dtype # <---- @HZ 05/26/2023 this does not allow np.nan
             )
 
             expanded_layer[:, matching] = layer_data
@@ -287,7 +294,6 @@ class DnaImputer(Imputer):
             source_data = self.assay.layers[layer][:, first:last]
         else:
             source_data = None
-
         if source_data is None:
             return np.nan
 
