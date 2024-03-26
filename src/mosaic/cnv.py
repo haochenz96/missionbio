@@ -312,26 +312,32 @@ class Cnv(_Assay):
 
         error_msg = '"features" could not be identified. '
 
-        if isinstance(features, str) and features == 'genes':
-            if GENE_NAME not in self.col_attrs:
-                print('Annotation not found.')
-                self.get_gene_names()
+        if GENE_NAME not in self.col_attrs:
+            raise ValueError('Amplicon annotation not found! Please run "sample.cnv.get_gene_names()" to add gene names to col_attrs.')
+            # self.get_gene_names()
 
+        if features == 'genes' or all([i for i in features if i in self.col_attrs[GENE_NAME]]):
             genes = self.col_attrs[GENE_NAME].copy()
             # order = genes.argsort()
             # @HZ 07/13/2022 -- might be better to sort by genomic coordinates
             order = self._get_amplicon_order() 
             ids = self.ids()[order]
-
             genes = self.col_attrs[GENE_NAME][order]
+            if len(features) > 1: # focus on particular genes
+                mask = np.isin(genes, features)
+                genes = genes[mask]
+                ids = ids[mask]
+            else:
+                mask = np.array([True] * len(genes))
             chroms = 'chr' + self.col_attrs[CHROM][order]
-            genes += '<br>' + chroms
+            genes += '<br>' + chroms[mask]
             if 'cytoband' in self.col_attrs:
                 cytobands = self.col_attrs['cytoband'][order]
-                genes += ' ' + cytobands
+                genes += ' ' + cytobands[mask]
+                
             return ids, genes
 
-        elif isinstance(features, str) and features == 'positions':
+        elif features == 'positions':
             order = self._get_amplicon_order()
             ids = self.ids()[order]
 
