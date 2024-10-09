@@ -316,7 +316,7 @@ class Cnv(_Assay):
             raise ValueError('Amplicon annotation not found! Please run "sample.cnv.get_gene_names()" to add gene names to col_attrs.')
             # self.get_gene_names()
 
-        if features == 'genes' or all([i for i in features if i in self.col_attrs[GENE_NAME]]):
+        if features == 'genes' or all([i in self.col_attrs[GENE_NAME] for i in features]):
             genes = self.col_attrs[GENE_NAME].copy()
             # order = genes.argsort()
             # @HZ 07/13/2022 -- might be better to sort by genomic coordinates
