@@ -330,7 +330,8 @@ class Cnv(_Assay):
             else:
                 mask = np.array([True] * len(genes))
             chroms = 'chr' + self.col_attrs[CHROM][order]
-            genes += '<br>' + chroms[mask]
+            genes = np.char.add(genes, np.full_like(genes, '<br>'))
+            genes = np.char.add(genes, chroms[mask].astype(str))
             if 'cytoband' in self.col_attrs:
                 cytobands = self.col_attrs['cytoband'][order]
                 genes += ' ' + cytobands[mask]

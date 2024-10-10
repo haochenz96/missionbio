@@ -1496,9 +1496,12 @@ class _Assay(H5_Assay):
 
             if len(labels) != self.shape[0]:
                 raise ValueError('Only 1-D values for `splitby` are permitted.')
+        # Convert to NumPy arrays before indexing
+        bars_order_array = np.array(bars_order)
+        barcodes_array = np.array(self.barcodes())
 
-        labels = labels[np.where(self.barcodes() == bars_order[:, None])[1]]
-
+        # Use NumPy's where function with the array versions
+        labels = labels[np.where(barcodes_array == bars_order_array[:, None])[1]]
         if not np.isin(features, self.ids()).all():
             # @HZ
             print("Warning: not all the given features were found in the assay ids.")
